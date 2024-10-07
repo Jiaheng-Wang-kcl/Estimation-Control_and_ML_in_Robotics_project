@@ -1,9 +1,3 @@
-'''
-Description: 
-Author: wangdx
-Date: 2021-11-28 11:30:06
-LastEditTime: 2021-11-28 12:51:02
-'''
 import torch
 from skimage.filters import gaussian
 from ggcnn.utils.data.structure.grasp import GRASP_WIDTH_MAX

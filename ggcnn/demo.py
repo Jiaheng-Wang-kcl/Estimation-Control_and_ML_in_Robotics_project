@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@ Time ： 2020/3/2 11:33
-@ Auth ： wangdx
-@ File ：test-sgdn.py
-@ IDE ：PyCharm
-@ Function : sgdn测试类
-"""
-
 import cv2
 import os
 import torch

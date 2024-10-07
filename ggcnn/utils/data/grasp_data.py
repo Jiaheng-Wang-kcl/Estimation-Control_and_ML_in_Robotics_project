@@ -8,7 +8,7 @@ import os
 import copy
 import glob
 import sys
-sys.path.append('D:/guyueju/code/ggcnn-master')
+# sys.path.append('/code/ggcnn-master')
 from utils.data.structure.img import DepthImage
 from utils.data.structure.grasp import GraspMat
 from utils.dataset_processing import mmcv
@@ -143,5 +143,5 @@ if __name__ == '__main__':
         img_color_line = img_color.copy()
         im_grasp_region = mmcv.drawGrasps(img_color_region, grasps, mode='region')
         im_grasp_line = mmcv.drawGrasps(img_color_line, grasps, mode='line')
-        cv2.imwrite('D:/guyueju/code/grasp_data/' + str(count) + '_region.png', im_grasp_region)
-        cv2.imwrite('D:/guyueju/code/grasp_data/' + str(count) + '_line.png', im_grasp_line)
+        cv2.imwrite('/code/grasp_data/' + str(count) + '_region.png', im_grasp_region)
+        cv2.imwrite('/code/grasp_data/' + str(count) + '_line.png', im_grasp_line)

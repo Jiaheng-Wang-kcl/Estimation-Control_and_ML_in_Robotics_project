@@ -288,5 +288,33 @@
     <limit effort="50" lower="0.0" upper="0.04" velocity="0.2"/>
   </joint>
 
+  <!-- 新增虚拟链接和关节，用于手指末端之间的中间位置 -->
+  <link name="panda_grasp_center">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.0"/> <!-- 无质量，不影响动力学 -->
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <sphere radius="0.0001"/> <!-- 使用一个小球体表示，可以替换成其他合适的形状 -->
+      </geometry>
+      <material name="yellow"/>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.0001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- 在手指之间添加虚拟关节 -->
+  <joint name="panda_grasp_center_joint" type="fixed">
+    <parent link="panda_hand"/>
+    <child link="panda_grasp_center"/>
+    <!-- 将位置设置为两个手指的中间位置，z轴方向为 (0.0584 + 0.01)，调整至所需位置 -->
+    <origin rpy="0 0 0" xyz="0 0 0.1244"/>
+  </joint>
+
 </robot>
 

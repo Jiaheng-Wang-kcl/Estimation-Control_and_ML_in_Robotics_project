@@ -19,7 +19,7 @@ import scipy.io as scio
 import sys
 import scipy.stats as ss
 import skimage.transform as skt
-sys.path.append('D:/guyueju/code/pybullet_grasp')
+sys.path.append('/code/pybullet_grasp')
 # from utils.mesh import Mesh
 # import utils.tool as tool
 # from utils.camera import Camera

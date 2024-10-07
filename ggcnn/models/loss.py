@@ -1,17 +1,3 @@
-'''
-Description: 
-Author: wangdx
-Date: 2021-11-28 11:30:06
-LastEditTime: 2021-11-28 14:16:52
-'''
-# -*- coding: utf-8 -*-
-"""
-@Time ： 2020/3/31 18:58
-@Auth ： 王德鑫
-@File ：loss.py
-@IDE ：PyCharm
-@Function: Loss
-"""
 import math
 import time
 import torch

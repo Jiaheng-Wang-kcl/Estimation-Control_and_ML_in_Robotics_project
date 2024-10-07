@@ -116,7 +116,7 @@ def main():
         #cur_regressor = dyn_model.ComputeDyanmicRegressor(q_mes,qd_mes, qdd_est)
         #regressor_all = np.vstack((regressor_all, cur_regressor))
 
-        time.sleep(0.01)  # Slow down the loop for better visualization
+        # time.sleep(0.01)  # Slow down the loop for better visualization
         # get real time
         current_time += time_step
         print("current time in seconds",current_time)

@@ -64,23 +64,40 @@ def getTransfMat(offset, rotate):
 
 
 class Camera:
-    def __init__(self):
+    # def __init__(self):
+    def __init__(self, fov, length, height = HEIGHT, width = WIDTH):
         """
         初始化相机参数，计算相机内参
         """
-        self.fov = 60   # 垂直视场
-        self.length = 0.7   # 相机高度
+        self.fov = fov   # 垂直视场
+        self.length = length   # 相机高度
+        self.height = height
+        self.width = width
         self.H = self.length * math.tan(angle_TO_radians(self.fov/2))   # 图像第一行的中点到图像中心点的实际距离 m
-        self.W = WIDTH * self.H / HEIGHT     # 图像右方点的到中心点的实际距离 m
+        self.W = self.width * self.H / self.height     # 图像右方点的到中心点的实际距离 m
         # 计算 fx 和 fy
-        self.A = (HEIGHT / 2) * self.length / self.H
+        self.A = (self.height / 2) * self.length / self.H
         # 计算内参
         # self.InMatrix = np.array([[self.A, 0, WIDTH/2 - 0.5], [0, self.A, HEIGHT/2 - 0.5], [0, 0, 1]], dtype=np.float)
-        self.InMatrix = np.array([[self.A, 0, WIDTH/2 - 0.5], [0, self.A, HEIGHT/2 - 0.5], [0, 0, 1]], dtype=np.float64)
+        self.InMatrix = np.array([[self.A, 0, self.width/2 - 0.5], [0, self.A, self.height/2 - 0.5], [0, 0, 1]], dtype=np.float64)
         # 计算世界坐标系->相机坐标系的转换矩阵 4*4
         # 欧拉角: (pi, 0, 0)    平移(0, 0, 0.7)
         rotMat = eulerAnglesToRotationMatrix([math.pi, 0, 0])
         self.transMat = getTransfMat([0, 0, 0.7], rotMat)
+        
+        # self.fov = 60   # 垂直视场
+        # self.length = 0.7   # 相机高度
+        # self.H = self.length * math.tan(angle_TO_radians(self.fov/2))   # 图像第一行的中点到图像中心点的实际距离 m
+        # self.W = WIDTH * self.H / HEIGHT     # 图像右方点的到中心点的实际距离 m
+        # # 计算 fx 和 fy
+        # self.A = (HEIGHT / 2) * self.length / self.H
+        # # 计算内参
+        # # self.InMatrix = np.array([[self.A, 0, WIDTH/2 - 0.5], [0, self.A, HEIGHT/2 - 0.5], [0, 0, 1]], dtype=np.float)
+        # self.InMatrix = np.array([[self.A, 0, WIDTH/2 - 0.5], [0, self.A, HEIGHT/2 - 0.5], [0, 0, 1]], dtype=np.float64)
+        # # 计算世界坐标系->相机坐标系的转换矩阵 4*4
+        # # 欧拉角: (pi, 0, 0)    平移(0, 0, 0.7)
+        # rotMat = eulerAnglesToRotationMatrix([math.pi, 0, 0])
+        # self.transMat = getTransfMat([0, 0, 0.7], rotMat)
 
     def camera_height(self):
         return self.length
@@ -93,7 +110,7 @@ class Camera:
 
         return: [x, y, z]
         """
-        pt_in_img = np.array([[pt[0]], [pt[1]], [1]], dtype=np.float)
+        pt_in_img = np.array([[pt[0]], [pt[1]], [1]], dtype=np.float64)
         ret = np.matmul(np.linalg.inv(self.InMatrix), pt_in_img) * dep
         return list(ret.reshape((3,)))
         # print('坐标 = ', ret)

@@ -1,18 +1,3 @@
-'''
-Description: 
-Author: wangdx
-Date: 2021-11-28 13:48:33
-LastEditTime: 2021-11-28 14:34:42
-'''
-# -*- coding: utf-8 -*-
-"""
-@ Time ： 2020/3/2 11:33
-@ Auth ： wangdx
-@ File ：affga.py
-@ IDE ：PyCharm
-@ Function : 
-"""
-
 import cv2
 import os
 import torch
