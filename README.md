@@ -59,3 +59,10 @@ To get started with **RoboEnv**, you need to have the following software install
     ```bash
     git submodule update --init --recursive
     ```
+
+7. **Run RGB-D grasper**
+    ```bash
+    mamba activate roboenv2
+    cd Estimation-Control_and_ML_in_Robotics_project
+    python RGB-D_based_grasp.py 
+    ```
