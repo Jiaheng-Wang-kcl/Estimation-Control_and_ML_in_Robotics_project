@@ -1,7 +1,6 @@
-# RoboEnv
+# Estimation-Control_and_ML_in_Robotics_project
 
-Welcome to **RoboEnv**, a repository designed to manage and set up the environment for robotic simulation and control. This repository includes an `environment.yaml` file that specifies all dependencies and links to other essential repositories, ensuring a seamless setup for robotic development and testing.
-
+This is my Estimation-Control_and_ML_in_Robotics course project in UCL
 ## Repository Overview
 
 **RoboEnv** provides a central place to:
@@ -20,11 +19,11 @@ To get started with **RoboEnv**, you need to have the following software install
 
 ### Setting Up the Environment
 
-1. **Clone the `roboenv` Repository:**
+1. **Clone the `Estimation-Control_and_ML_in_Robotics_project` Repository:**
 
    ```bash
-   git clone --recurse-submodules https://github.com/VModugno/RoboEnv.git
-   cd RoboEnv
+   git clone --recurse-submodules https://github.com/VModugno/RoboEnv.git](https://github.com/Jiaheng-Wang-kcl/Estimation-Control_and_ML_in_Robotics_project.git)
+   cd Estimation-Control_and_ML_in_Robotics_project
    ```
 
 2.  **Install the Conda Environment and the simulation_and_control library:**
