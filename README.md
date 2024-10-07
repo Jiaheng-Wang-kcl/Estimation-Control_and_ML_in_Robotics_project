@@ -22,7 +22,7 @@ To get started with **RoboEnv**, you need to have the following software install
 1. **Clone the `Estimation-Control_and_ML_in_Robotics_project` Repository:**
 
    ```bash
-   git clone --recurse-submodules https://github.com/VModugno/RoboEnv.git](https://github.com/Jiaheng-Wang-kcl/Estimation-Control_and_ML_in_Robotics_project.git)
+   git clone https://github.com/Jiaheng-Wang-kcl/Estimation-Control_and_ML_in_Robotics_project.git
    cd Estimation-Control_and_ML_in_Robotics_project
    ```
 
