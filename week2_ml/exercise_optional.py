@@ -17,10 +17,11 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 
 # Use the AdaBoost model
 best_model = AdaBoostRegressor(
-    estimator=DecisionTreeRegressor(max_depth=40),
-    n_estimators=200,
+    estimator=DecisionTreeRegressor(max_depth=30),
+    n_estimators=250,
     random_state=42,
-    loss='square'
+    learning_rate=1.5, 
+    loss='linear'
 )
 # Alternatively, use the RandomForest model
 # best_model = RandomForestRegressor(
