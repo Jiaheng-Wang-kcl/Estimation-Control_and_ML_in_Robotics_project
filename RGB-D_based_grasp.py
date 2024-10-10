@@ -372,10 +372,10 @@ def main():
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     sim = RGBD_Grasp_Env(conf_file_name, conf_file_path_ext = cur_dir)
     
-    sim.loadObjsInURDF(0, 5)
+    sim.loadObjsInURDF(0, 3)
 
     camera_depth = sim.renderCameraDepthImage()
-    camera_depth = sim.add_noise(camera_depth)
+    # camera_depth = sim.add_noise(camera_depth)
 
     ext_names = sim.getNameActiveJoints()
     ext_names = np.expand_dims(np.array(ext_names), axis=0)
