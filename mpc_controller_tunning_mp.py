@@ -1,16 +1,20 @@
 import os
 import numpy as np
 import random
+from concurrent.futures import ProcessPoolExecutor
 from simulation_and_control import pb, MotorCommands, PinWrapper, feedback_lin_ctrl, dyn_cancel, SinusoidalReference, CartesianDiffKin
 from regulator_model import RegulatorModel
 from mpc_controller_public import getSystemMatrices
 
 # 设置遗传算法参数
 population_size = 50
-num_generations = 30
-initial_mutation_rate = 0.3  # 初始较高的变异率
-min_mutation_rate = 0.1      # 最低变异率
-num_joints = 7  # 假设有 7 个关节
+num_generations = 200  # 增加到200代
+initial_mutation_rate = 0.3
+min_mutation_rate = 0.1
+num_joints = 7
+
+# damping 系数
+damping_coefficients = [0.5, 0.6, 0.2, 0.1, 0.3, 0.35, 0.8]
 
 # 初始化仿真
 def initialize_simulation(conf_file_name):
@@ -21,21 +25,18 @@ def initialize_simulation(conf_file_name):
     dyn_model = PinWrapper(conf_file_name, "pybullet", ext_names, source_names, False, 0, cur_dir)
     return sim, dyn_model
 
-# 评估个体适应度，返回关节角度的平方和总和
+# 评估个体适应度
 def evaluate_fitness(Q_diag_pos, Q_diag_vel, R_diag):
     sim, dyn_model = initialize_simulation("panda_ZN_config.json")
     cmd = MotorCommands()
     
-    # 定义 A 和 B 矩阵
-    damping_coefficients = None
+    # 定义 A 和 B 矩阵，使用 damping 系数
     A, B = getSystemMatrices(sim, num_joints, damping_coefficients=damping_coefficients)
     
-    # 定义 Q 矩阵为对角矩阵，分别设置位置和速度的调整范围
+    # 定义 Q 和 R 矩阵
     Q = np.eye(2 * num_joints)
     Q[:num_joints, :num_joints] = np.diag(Q_diag_pos)
     Q[num_joints:, num_joints:] = np.diag(Q_diag_vel)
-    
-    # 定义 R 矩阵
     R = np.diag(R_diag)
 
     # 初始化 RegulatorModel
@@ -48,12 +49,13 @@ def evaluate_fitness(Q_diag_pos, Q_diag_vel, R_diag):
     H, F = regulator.compute_H_and_F(S_bar, T_bar, Q_bar, R_bar)
     
     # 仿真主循环，记录关节角度的平方和
-    episode_duration = 20  # 20秒仿真时间
+    episode_duration = 20
     time_step = sim.GetTimeStep()
     steps = int(episode_duration / time_step)
     sim.ResetPose()
     
-    squared_sum = 0
+    position_squared_sum = 0
+    velocity_squared_sum = 0
     for _ in range(steps):
         q_mes = sim.GetMotorAngles(0)
         qd_mes = sim.GetMotorVelocities(0)
@@ -66,16 +68,19 @@ def evaluate_fitness(Q_diag_pos, Q_diag_vel, R_diag):
         cmd.tau_cmd = dyn_cancel(dyn_model, q_mes, qd_mes, u_mpc)
         sim.Step(cmd, "torque")
         
-        # 仅累加位置的平方和
-        squared_sum += np.sum(np.square(q_mes))
+        # 累加位置的平方和和速度的平方和
+        position_squared_sum += np.sum(np.square(q_mes))
+        velocity_squared_sum += np.sum(np.square(qd_mes))
     
-    return squared_sum
+    # 加入速度平方和作为正则项，防止高速震颤
+    fitness = position_squared_sum + 0.01 * velocity_squared_sum
+    return fitness
 
-# 初始化种群（位置、速度和 R 矩阵部分）
+# 初始化种群
 def initialize_population():
-    Q_pos_population = [np.random.uniform(0, 10000, num_joints) for _ in range(population_size)]
-    Q_vel_population = [np.random.uniform(0, 1000, num_joints) for _ in range(population_size)]
-    R_population = [np.random.uniform(0, 10, num_joints) for _ in range(population_size)]
+    Q_pos_population = [np.random.uniform(0, 50000, num_joints) for _ in range(population_size)]
+    Q_vel_population = [np.random.uniform(0, 2000, num_joints) for _ in range(population_size)]
+    R_population = [np.random.uniform(0, 20, num_joints) for _ in range(population_size)]
     return list(zip(Q_pos_population, Q_vel_population, R_population))
 
 # 选择函数
@@ -92,31 +97,34 @@ def crossover(parent1, parent2):
     return (child_pos, child_vel, child_R)
 
 def mutate(child, generation):
-    # 动态衰减变异率
     mutation_rate = max(min_mutation_rate, initial_mutation_rate * (1 - generation / num_generations))
     
     if random.random() < mutation_rate:
-        # 位置部分变异
         mutation_index_pos = random.randint(0, num_joints - 1)
         child[0][mutation_index_pos] += np.random.uniform(-0.5, 0.5) * child[0][mutation_index_pos]
-        child[0][mutation_index_pos] = np.clip(child[0][mutation_index_pos], 0, 25000)
+        child[0][mutation_index_pos] = np.clip(child[0][mutation_index_pos], 0, 50000)
         
-        # 速度部分变异
         mutation_index_vel = random.randint(0, num_joints - 1)
         child[1][mutation_index_vel] += np.random.uniform(-0.5, 0.5) * child[1][mutation_index_vel]
         child[1][mutation_index_vel] = np.clip(child[1][mutation_index_vel], 0, 2000)
         
-        # R 矩阵部分变异
         mutation_index_R = random.randint(0, num_joints - 1)
         child[2][mutation_index_R] += np.random.uniform(-0.5, 0.5) * child[2][mutation_index_R]
         child[2][mutation_index_R] = np.clip(child[2][mutation_index_R], 0, 20)
     return child
 
+# 适应度计算的包装函数
+def evaluate_individual(ind):
+    return evaluate_fitness(ind[0], ind[1], ind[2])
+
 # 主遗传算法循环
 def genetic_algorithm():
     population = initialize_population()
     for generation in range(num_generations):
-        fitness_scores = [evaluate_fitness(ind[0], ind[1], ind[2]) for ind in population]
+        # 使用多进程计算适应度得分
+        with ProcessPoolExecutor() as executor:
+            fitness_scores = list(executor.map(evaluate_individual, population))
+        
         best_fitness = min(fitness_scores)
         avg_fitness = np.mean(fitness_scores)
         std_fitness = np.std(fitness_scores)
@@ -130,9 +138,10 @@ def genetic_algorithm():
         print("Best Q-diagonal (velocity):", best_individual[1])
         print("Best R-diagonal:", best_individual[2])
         
-        new_population = []
+        # 创建新种群并保留精英个体
+        new_population = [best_individual]
         parent1, parent2 = select_parents(population, fitness_scores)
-        for _ in range(population_size):
+        for _ in range(population_size - 1):
             child = crossover(parent1, parent2)
             child = mutate(child, generation)
             new_population.append(child)
