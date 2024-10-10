@@ -66,3 +66,20 @@ To get started with **RoboEnv**, you need to have the following software install
     cd Estimation-Control_and_ML_in_Robotics_project
     python RGB-D_based_grasp.py 
     ```
+
+8. **mpc_controller**
+    ```bash
+    mamba activate roboenv2
+    cd Estimation-Control_and_ML_in_Robotics_project
+    ```
+
+    for tunnning the Q and R matrix with genetic algorithm:
+    ```
+    python mpc_controller_tunning_mp.py
+    ```
+    mp for multi-processing
+
+    Then use the optimal Q and R matrix to do mpc control:
+    ```
+    python mpc_controller_public.py
+    ```
